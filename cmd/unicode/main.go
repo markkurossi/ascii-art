@@ -98,52 +98,193 @@ const (
 	FlagRight
 )
 
+var properties = map[rune]int{
+	'+': FlagUp | FlagDown | FlagLeft | FlagRight,
+	'*': FlagUp | FlagDown | FlagLeft | FlagRight,
+	'|': FlagUp | FlagDown,
+	'-': FlagLeft | FlagRight,
+
+	0x2500: FlagLeft | FlagRight,
+	0x2501: FlagLeft | FlagRight,
+	0x2502: FlagDown | FlagUp,
+	0x2503: FlagDown | FlagUp,
+	0x2504: FlagLeft | FlagRight,
+	0x2505: FlagLeft | FlagRight,
+	0x2506: FlagDown | FlagUp,
+	0x2507: FlagDown | FlagUp,
+	0x2508: FlagLeft | FlagRight,
+	0x2509: FlagLeft | FlagRight,
+	0x250A: FlagDown | FlagUp,
+	0x250B: FlagDown | FlagUp,
+	0x250C: FlagDown | FlagRight,
+	0x250D: FlagDown | FlagRight,
+	0x250E: FlagDown | FlagRight,
+	0x250F: FlagDown | FlagRight,
+
+	0x2510: FlagDown | FlagLeft,
+	0x2511: FlagDown | FlagLeft,
+	0x2512: FlagDown | FlagLeft,
+	0x2513: FlagDown | FlagLeft,
+	0x2514: FlagUp | FlagRight,
+	0x2515: FlagUp | FlagRight,
+	0x2516: FlagUp | FlagRight,
+	0x2517: FlagUp | FlagRight,
+	0x2518: FlagUp | FlagLeft,
+	0x2519: FlagUp | FlagLeft,
+	0x251A: FlagUp | FlagLeft,
+	0x251B: FlagUp | FlagLeft,
+	0x251C: FlagUp | FlagDown | FlagRight,
+	0x251D: FlagUp | FlagDown | FlagRight,
+	0x251E: FlagUp | FlagDown | FlagRight,
+	0x251F: FlagUp | FlagDown | FlagRight,
+
+	0x2520: FlagUp | FlagDown | FlagRight,
+	0x2521: FlagUp | FlagDown | FlagRight,
+	0x2522: FlagUp | FlagDown | FlagRight,
+	0x2523: FlagUp | FlagDown | FlagRight,
+	0x2524: FlagUp | FlagDown | FlagLeft,
+	0x2525: FlagUp | FlagDown | FlagLeft,
+	0x2526: FlagUp | FlagDown | FlagLeft,
+	0x2527: FlagUp | FlagDown | FlagLeft,
+	0x2528: FlagUp | FlagDown | FlagLeft,
+	0x2529: FlagUp | FlagDown | FlagLeft,
+	0x252A: FlagUp | FlagDown | FlagLeft,
+	0x252B: FlagUp | FlagDown | FlagLeft,
+	0x252C: FlagDown | FlagLeft | FlagRight,
+	0x252D: FlagDown | FlagLeft | FlagRight,
+	0x252E: FlagDown | FlagLeft | FlagRight,
+	0x252F: FlagDown | FlagLeft | FlagRight,
+
+	0x2530: FlagDown | FlagLeft | FlagRight,
+	0x2531: FlagDown | FlagLeft | FlagRight,
+	0x2532: FlagDown | FlagLeft | FlagRight,
+	0x2533: FlagDown | FlagLeft | FlagRight,
+	0x2534: FlagUp | FlagLeft | FlagRight,
+	0x2535: FlagUp | FlagLeft | FlagRight,
+	0x2536: FlagUp | FlagLeft | FlagRight,
+	0x2537: FlagUp | FlagLeft | FlagRight,
+	0x2538: FlagUp | FlagLeft | FlagRight,
+	0x2539: FlagUp | FlagLeft | FlagRight,
+	0x253A: FlagUp | FlagLeft | FlagRight,
+	0x253B: FlagUp | FlagLeft | FlagRight,
+	0x253C: FlagUp | FlagDown | FlagLeft | FlagRight,
+	0x253D: FlagUp | FlagDown | FlagLeft | FlagRight,
+	0x253E: FlagUp | FlagDown | FlagLeft | FlagRight,
+	0x253F: FlagUp | FlagDown | FlagLeft | FlagRight,
+
+	0x2540: FlagUp | FlagDown | FlagLeft | FlagRight,
+	0x2541: FlagUp | FlagDown | FlagLeft | FlagRight,
+	0x2542: FlagUp | FlagDown | FlagLeft | FlagRight,
+	0x2543: FlagUp | FlagDown | FlagLeft | FlagRight,
+	0x2544: FlagUp | FlagDown | FlagLeft | FlagRight,
+	0x2545: FlagUp | FlagDown | FlagLeft | FlagRight,
+	0x2546: FlagUp | FlagDown | FlagLeft | FlagRight,
+	0x2547: FlagUp | FlagDown | FlagLeft | FlagRight,
+	0x2548: FlagUp | FlagDown | FlagLeft | FlagRight,
+	0x2549: FlagUp | FlagDown | FlagLeft | FlagRight,
+	0x254A: FlagUp | FlagDown | FlagLeft | FlagRight,
+	0x254B: FlagUp | FlagDown | FlagLeft | FlagRight,
+	0x254C: FlagLeft | FlagRight,
+	0x254D: FlagLeft | FlagRight,
+	0x254E: FlagUp | FlagDown,
+	0x254F: FlagUp | FlagDown,
+
+	0x2550: FlagLeft | FlagRight,
+	0x2551: FlagUp | FlagDown,
+	0x2552: FlagDown | FlagRight,
+	0x2553: FlagDown | FlagRight,
+	0x2554: FlagDown | FlagRight,
+	0x2555: FlagDown | FlagLeft,
+	0x2556: FlagDown | FlagLeft,
+	0x2557: FlagDown | FlagLeft,
+	0x2558: FlagUp | FlagRight,
+	0x2559: FlagUp | FlagRight,
+	0x255A: FlagUp | FlagRight,
+	0x255B: FlagUp | FlagLeft,
+	0x255C: FlagUp | FlagLeft,
+	0x255D: FlagUp | FlagLeft,
+	0x255E: FlagUp | FlagDown | FlagRight,
+	0x255F: FlagUp | FlagDown | FlagRight,
+
+	0x2560: FlagUp | FlagDown | FlagRight,
+	0x2561: FlagUp | FlagDown | FlagLeft,
+	0x2562: FlagUp | FlagDown | FlagLeft,
+	0x2563: FlagUp | FlagDown | FlagLeft,
+	0x2564: FlagDown | FlagLeft | FlagRight,
+	0x2565: FlagDown | FlagLeft | FlagRight,
+	0x2566: FlagDown | FlagLeft | FlagRight,
+	0x2567: FlagUp | FlagLeft | FlagRight,
+	0x2568: FlagUp | FlagLeft | FlagRight,
+	0x2569: FlagUp | FlagLeft | FlagRight,
+	0x256A: FlagUp | FlagDown | FlagLeft | FlagRight,
+	0x256B: FlagUp | FlagDown | FlagLeft | FlagRight,
+	0x256C: FlagUp | FlagDown | FlagLeft | FlagRight,
+	0x256D: FlagDown | FlagRight,
+	0x256E: FlagDown | FlagLeft,
+	0x256F: FlagUp | FlagLeft,
+
+	0x2570: FlagUp | FlagRight,
+	0x2571: 0,
+	0x2572: 0,
+	0x2573: 0,
+	0x2574: FlagLeft,
+	0x2575: FlagUp,
+	0x2576: FlagRight,
+	0x2577: FlagDown,
+	0x2578: FlagLeft,
+	0x2579: FlagUp,
+	0x257A: FlagRight,
+	0x257B: FlagDown,
+	0x257C: FlagLeft | FlagRight,
+	0x257D: FlagUp | FlagDown,
+	0x257E: FlagLeft | FlagRight,
+	0x257F: FlagUp | FlagDown,
+}
+
 var lineDrawing = []rune{
 	'+',    //
-	0x2576, // 	               Up
-	0x2577, // 	          Down
-	0x2502, // 	          Down Up
-	0x2574, // 	     Left
-	0x2518, // 	     Left      Up
-	0x2510, // 	     Left Down
-	0x2524, // 	     Left Down Up
-	0x2576, // Right
-	0x2514, // Right           Up
-	0x250C, // Right      Down
-	0x251C, // Right      Down Up
-	0x2500, // Right Left
-	0x2534, // Right Left      Up
-	0x252C, // Right Left Down
-	0x253C, // Right Left Down Up
+	0x2575, // 	               Up	╵
+	0x2577, // 	          Down		╷
+	0x2502, // 	          Down Up	│
+	0x2574, // 	     Left			╴
+	0x2518, // 	     Left      Up	┘
+	0x2510, // 	     Left Down		┐
+	0x2524, // 	     Left Down Up	┤
+	0x2576, // Right				╶
+	0x2514, // Right           Up	└
+	0x250C, // Right      Down		┌
+	0x251C, // Right      Down Up	├
+	0x2500, // Right Left			─
+	0x2534, // Right Left      Up	┴
+	0x252C, // Right Left Down		┬
+	0x253C, // Right Left Down Up	┼
 }
 
 var lineDrawingRound = []rune{
-	'+',    //
-	0x2576, // 	               Up
-	0x2577, // 	          Down
-	0x2502, // 	          Down Up
-	0x2574, // 	     Left
-	0x256F, // 	     Left      Up
-	0x256E, // 	     Left Down
-	0x2524, // 	     Left Down Up
-	0x2576, // Right
-	0x2570, // Right           Up
-	0x256D, // Right      Down
-	0x251C, // Right      Down Up
-	0x2500, // Right Left
-	0x2534, // Right Left      Up
-	0x252C, // Right Left Down
-	0x253C, // Right Left Down Up
+	'*',    //
+	0x2575, // 	               Up	╵
+	0x2577, // 	          Down	 	╷
+	0x2502, // 	          Down Up	│
+	0x2574, // 	     Left		 	╴
+	0x256F, // 	     Left      Up	╯
+	0x256E, // 	     Left Down	 	╮
+	0x2524, // 	     Left Down Up	┤
+	0x2576, // Right			 	╶
+	0x2570, // Right           Up	╰
+	0x256D, // Right      Down	 	╭
+	0x251C, // Right      Down Up	├
+	0x2500, // Right Left		 	─
+	0x2534, // Right Left      Up	┴
+	0x252C, // Right Left Down	 	┬
+	0x253C, // Right Left Down Up	┼
 }
 
-func isLine(r rune) bool {
-	switch r {
-	case '|', '-', '+', '*':
-		return true
-
-	default:
-		return 0x2500 <= r && r <= 0x257F
+func isLine(r rune, f int) bool {
+	props, ok := properties[r]
+	if !ok {
+		return false
 	}
+	return props&f != 0
 }
 
 func processFile(file string) error {
@@ -166,21 +307,23 @@ func processFile(file string) error {
 				region.Set(row, col, 0x2502)
 			case '-':
 				region.Set(row, col, 0x2500)
-			case '+', '*':
+			case '+', '*', '\'':
 				var index int
-				if isLine(region.Get(row-1, col)) {
+				if isLine(region.Get(row-1, col), FlagDown) {
 					index |= FlagUp
 				}
-				if isLine(region.Get(row+1, col)) {
+				if isLine(region.Get(row+1, col), FlagUp) {
 					index |= FlagDown
 				}
-				if isLine(region.Get(row, col-1)) {
+				if isLine(region.Get(row, col-1), FlagRight) {
 					index |= FlagLeft
 				}
-				if isLine(region.Get(row, col+1)) {
+				if isLine(region.Get(row, col+1), FlagLeft) {
 					index |= FlagRight
 				}
-				if ch == '+' {
+				if index == 0 {
+					region.Set(row, col, ch)
+				} else if ch == '+' {
 					region.Set(row, col, lineDrawing[index])
 				} else {
 					region.Set(row, col, lineDrawingRound[index])
