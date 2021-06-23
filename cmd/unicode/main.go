@@ -74,6 +74,19 @@ func (r *Region) Set(row, col int, ch rune) {
 	r.lines[row][col] = ch
 }
 
+func (r *Region) Clone() *Region {
+	lines := make([][]rune, len(r.lines))
+	for i, line := range r.lines {
+		l := make([]rune, len(line))
+		copy(l, line)
+		lines[i] = l
+	}
+	return &Region{
+		maxWidth: r.maxWidth,
+		lines:    lines,
+	}
+}
+
 func NewRegion(input []byte) *Region {
 	var lines [][]rune
 	var width int
@@ -279,12 +292,67 @@ var lineDrawingRound = []rune{
 	0x253C, // Right Left Down Up	┼
 }
 
+var backslash = []rune{
+	'\\',   //
+	0x2570, // 	               Up	╰
+	0x256E, // 	          Down		╮
+	'\\',   // 	          Down Up
+	0x256E, // 	     Left			╮
+	0x2518, // 	     Left      Up	┘
+	0x256E, // 	     Left Down		╮
+	0x2524, // 	     Left Down Up	┤
+	0x2570, // Right				╰
+	0x2570, // Right           Up	╰
+	0x250C, // Right      Down		┌
+	0x251C, // Right      Down Up	├
+	'\\',   // Right Left
+	0x2534, // Right Left      Up	┴
+	0x252C, // Right Left Down		┬
+	0x253C, // Right Left Down Up	┼
+}
+
+var slash = []rune{
+	'/',    //
+	0x256F, // 	               Up	╯
+	0x256D, // 	          Down		╭
+	'/',    // 	          Down Up
+	0x256F, // 	     Left			╯
+	0x256F, // 	     Left      Up	╯
+	0x2510, // 	     Left Down		┐
+	0x2524, // 	     Left Down Up	┤
+	0x256D, // Right				╭
+	0x2514, // Right           Up	└
+	0x256D, // Right      Down		╭
+	0x251C, // Right      Down Up	├
+	'/',    // Right Left
+	0x2534, // Right Left      Up	┴
+	0x252C, // Right Left Down		┬
+	0x253C, // Right Left Down Up	┼
+}
+
 func isLine(r rune, f int) bool {
 	props, ok := properties[r]
 	if !ok {
 		return false
 	}
 	return props&f != 0
+}
+
+func checkMainLines(input *Region, row, col int) int {
+	var index int
+	if input.Get(row-1, col) == '|' {
+		index |= FlagUp
+	}
+	if input.Get(row+1, col) == '|' {
+		index |= FlagDown
+	}
+	if input.Get(row, col-1) == '-' {
+		index |= FlagLeft
+	}
+	if input.Get(row, col+1) == '-' {
+		index |= FlagRight
+	}
+	return index
 }
 
 func processFile(file string) error {
@@ -298,41 +366,63 @@ func processFile(file string) error {
 		return err
 	}
 
-	region := NewRegion(data)
-	for row := 0; row < region.Height(); row++ {
-		for col := 0; col < region.Width(); col++ {
-			ch := region.Get(row, col)
+	input := NewRegion(data)
+	output := input.Clone()
+
+	for row := 0; row < input.Height(); row++ {
+		for col := 0; col < input.Width(); col++ {
+			ch := input.Get(row, col)
 			switch ch {
 			case '|':
-				region.Set(row, col, 0x2502)
+				output.Set(row, col, 0x2502)
 			case '-':
-				region.Set(row, col, 0x2500)
-			case '+', '*', '\'':
+				output.Set(row, col, 0x2500)
+			case '+', '*', '\'', '\\', '/':
 				var index int
-				if isLine(region.Get(row-1, col), FlagDown) {
+				if isLine(input.Get(row-1, col), FlagDown) {
 					index |= FlagUp
 				}
-				if isLine(region.Get(row+1, col), FlagUp) {
+				if isLine(input.Get(row+1, col), FlagUp) {
 					index |= FlagDown
 				}
-				if isLine(region.Get(row, col-1), FlagRight) {
+				if isLine(input.Get(row, col-1), FlagRight) {
 					index |= FlagLeft
 				}
-				if isLine(region.Get(row, col+1), FlagLeft) {
+				if isLine(input.Get(row, col+1), FlagLeft) {
 					index |= FlagRight
 				}
 				if index == 0 {
-					region.Set(row, col, ch)
-				} else if ch == '+' {
-					region.Set(row, col, lineDrawing[index])
+					output.Set(row, col, ch)
 				} else {
-					region.Set(row, col, lineDrawingRound[index])
+					switch ch {
+					case '+', '\'':
+						output.Set(row, col, lineDrawing[index])
+
+					case '*':
+						output.Set(row, col, lineDrawingRound[index])
+
+					case '\\':
+						mainLines := checkMainLines(input, row, col)
+						if mainLines != 0 {
+							output.Set(row, col, backslash[mainLines])
+						} else {
+							output.Set(row, col, backslash[index])
+						}
+
+					case '/':
+						mainLines := checkMainLines(input, row, col)
+						if mainLines != 0 {
+							output.Set(row, col, slash[mainLines])
+						} else {
+							output.Set(row, col, slash[index])
+						}
+					}
 				}
 			}
 		}
 	}
 
-	fmt.Print(region.String())
+	fmt.Print(output.String())
 
 	return nil
 }
